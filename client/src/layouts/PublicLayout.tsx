@@ -8,7 +8,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 py-8">{children}</main>
       <footer className="bg-navy-dark text-[#9fb0c3] py-8 mt-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center text-xs">
-          Dindigul District Aeroskatoball Association — Demo Portal. Content shown is sample data.
+          Dindigul District Aeroskatoball Association · Affiliated to Tamil Nadu Aeroskatoball Association of India
         </div>
       </footer>
     </div>

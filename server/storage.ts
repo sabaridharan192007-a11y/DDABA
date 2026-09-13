@@ -549,6 +549,7 @@ export const siteContentStorage = {
         objectives: siteContent.objectives,
         developmentText: siteContent.developmentText,
         affiliationText: siteContent.affiliationText,
+        contactText: siteContent.contactText,
         contactEmail: siteContent.contactEmail,
         contactPhone: siteContent.contactPhone,
         facebookUrl: siteContent.facebookUrl,

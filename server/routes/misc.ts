@@ -43,15 +43,13 @@ publicContentRouter.get("/site-content", async (_req, res) => {
 });
 
 overviewRouter.put("/site-content", requireAdmin, async (req, res) => {
-  const { aboutTitle, mission, vision, objectives, developmentText, affiliationText, contactEmail, contactPhone, facebookUrl, youtubeUrl } = req.body;
+  const { aboutTitle, mission, developmentText, affiliationText, contactText, contactEmail, contactPhone, facebookUrl, youtubeUrl } = req.body;
   if (
     typeof aboutTitle !== "string" ||
     typeof mission !== "string" ||
-    typeof vision !== "string" ||
-    !Array.isArray(objectives) ||
-    objectives.some((item: unknown) => typeof item !== "string") ||
     typeof developmentText !== "string" ||
     typeof affiliationText !== "string" ||
+    typeof contactText !== "string" ||
     typeof contactEmail !== "string" ||
     typeof contactPhone !== "string" ||
     typeof facebookUrl !== "string" ||
@@ -63,10 +61,9 @@ overviewRouter.put("/site-content", requireAdmin, async (req, res) => {
     const content = await siteContentStorage.update({
       aboutTitle: aboutTitle.trim().slice(0, 255),
       mission: mission.trim(),
-      vision: vision.trim(),
-      objectives: objectives.map((item: string) => item.trim()).filter(Boolean),
       developmentText: developmentText.trim(),
       affiliationText: affiliationText.trim(),
+      contactText: contactText.trim(),
       contactEmail: contactEmail.trim().slice(0, 255),
       contactPhone: contactPhone.trim().slice(0, 30),
       facebookUrl: facebookUrl.trim().slice(0, 1000),

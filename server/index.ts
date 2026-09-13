@@ -98,8 +98,10 @@ app.use("/api", publicContentRouter);
 app.use("/api/admin", overviewRouter);
 
 // ---------- STATIC FRONTEND (production build) ----------
-if (isProduction) {
-  const clientDist = path.resolve(__dirname, "../client/dist");
+if (isProduction && !process.env.VERCEL) {
+  // The compiled server entry is dist-server/server/index.js, while the
+  // Vite output remains in the sibling client/dist directory.
+  const clientDist = path.resolve(__dirname, "../../client/dist");
   app.use(express.static(clientDist, { maxAge: "1d", index: false }));
   app.get("*", (req, res) => {
     if (req.path.startsWith("/api")) return res.status(404).json({ message: "Not found." });
@@ -119,6 +121,10 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
   res.status(500).json({ message: "Something went wrong. Please try again." });
 });
 
-app.listen(env.PORT, () => {
-  console.log(`DDABA server running on port ${env.PORT} (${env.NODE_ENV})`);
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(env.PORT, () => {
+    console.log(`DDABA server running on port ${env.PORT} (${env.NODE_ENV})`);
+  });
+}

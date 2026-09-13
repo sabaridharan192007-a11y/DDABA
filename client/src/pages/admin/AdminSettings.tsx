@@ -4,21 +4,21 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 type AboutContent = {
-  aboutTitle: string; mission: string; vision: string; objectives: string[];
+  aboutTitle: string; mission: string;
   developmentText: string; affiliationText: string;
+  contactText: string;
   contactEmail: string; contactPhone: string; facebookUrl: string; youtubeUrl: string;
 };
 
 const emptyContent: AboutContent = {
-  aboutTitle: "About DDABA", mission: "", vision: "", objectives: [],
-  developmentText: "", affiliationText: "",
+  aboutTitle: "About DDABA", mission: "",
+  developmentText: "", affiliationText: "Affiliated to Tamil Nadu Aeroskatoball Association of India.", contactText: "",
   contactEmail: "", contactPhone: "", facebookUrl: "", youtubeUrl: "",
 };
 
 export default function AdminSettings() {
   const { user } = useAuth();
   const [content, setContent] = useState<AboutContent>(emptyContent);
-  const [objectiveText, setObjectiveText] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -30,13 +30,6 @@ export default function AdminSettings() {
 
   function update(field: keyof AboutContent, value: string) {
     setContent((current) => ({ ...current, [field]: value }));
-  }
-
-  function addObjective() {
-    const value = objectiveText.trim();
-    if (!value) return;
-    setContent((current) => ({ ...current, objectives: [...current.objectives, value] }));
-    setObjectiveText("");
   }
 
   async function save(e: React.FormEvent) {
@@ -76,17 +69,9 @@ export default function AdminSettings() {
         </div>
         <input className="input-admin w-full" placeholder="Page title" value={content.aboutTitle} onChange={(e) => update("aboutTitle", e.target.value)} required />
         <textarea className="input-admin w-full" rows={4} placeholder="Mission" value={content.mission} onChange={(e) => update("mission", e.target.value)} required />
-        <textarea className="input-admin w-full" rows={4} placeholder="Vision" value={content.vision} onChange={(e) => update("vision", e.target.value)} required />
-        <div>
-          <label className="text-sm font-medium">Objectives</label>
-          <div className="flex gap-2 mt-2">
-            <input className="input-admin flex-1" placeholder="Add an objective" value={objectiveText} onChange={(e) => setObjectiveText(e.target.value)} />
-            <button type="button" onClick={addObjective} className="border border-border rounded-lg px-3 text-sm">Add</button>
-          </div>
-          <ul className="mt-2 space-y-1 text-sm">{content.objectives.map((item, index) => <li key={`${item}-${index}`} className="flex justify-between gap-3 border-b border-border/50 py-1"><span>{item}</span><button type="button" className="text-danger" onClick={() => setContent((current) => ({ ...current, objectives: current.objectives.filter((_, i) => i !== index) }))}>Remove</button></li>)}</ul>
-        </div>
         <textarea className="input-admin w-full" rows={4} placeholder="Development and history" value={content.developmentText} onChange={(e) => update("developmentText", e.target.value)} required />
         <textarea className="input-admin w-full" rows={3} placeholder="Affiliation information" value={content.affiliationText} onChange={(e) => update("affiliationText", e.target.value)} required />
+        <textarea className="input-admin w-full" rows={3} placeholder="Contact details and address" value={content.contactText} onChange={(e) => update("contactText", e.target.value)} />
         <div className="grid sm:grid-cols-2 gap-3">
           <input className="input-admin w-full" type="email" placeholder="Public contact email" value={content.contactEmail} onChange={(e) => update("contactEmail", e.target.value)} />
           <input className="input-admin w-full" placeholder="Public mobile number" value={content.contactPhone} onChange={(e) => update("contactPhone", e.target.value)} />
