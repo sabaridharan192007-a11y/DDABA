@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f7f6f2;
+    color: #16202a;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-border rounded-xl;
+  }
+  .card-shadow {
+    @apply shadow-card;
+  }
+  .heading-display {
+    @apply font-display tracking-wide;
+  }
+  .stripe-top {
+    @apply relative;
+  }
+  .stripe-top::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6a00, #ffffff, #128a3e);
+  }
+  /* Compatibility classes: pages built for the earlier dark theme use
+     these class names. Redefined here for the light tricolor theme so
+     those pages render correctly without needing per-file rewrites. */
+  .glass-card {
+    @apply bg-white border border-border rounded-2xl shadow-card;
+  }
+  .glow-border {
+    @apply border border-saffron/30 shadow-glow;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
