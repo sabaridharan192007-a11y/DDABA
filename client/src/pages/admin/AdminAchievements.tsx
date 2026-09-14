@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { api } from "@/lib/api";
+import { readImageFile } from "@/lib/media";
 import { Edit3, Plus, Trash2, Trophy, X } from "lucide-react";
 
 interface Achievement {
@@ -25,6 +26,8 @@ export default function AdminAchievements() {
   const [form, setForm] = useState<AchievementForm>(empty);
   const [editing, setEditing] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
 
   async function load() {
     const res = await api.get<{ achievements: Achievement[] }>("/achievements");
@@ -41,14 +44,23 @@ export default function AdminAchievements() {
       tournament: item.tournament || "", year: item.year ? String(item.year) : "", type: item.type, medal: item.medal || "", image: item.image || "",
     });
     setEditing(item.id);
+    setMessage("");
     setShowForm(true);
   }
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    const payload = { ...form, playerId: form.playerId ? Number(form.playerId) : null, year: form.year ? Number(form.year) : undefined, image: form.image || undefined };
-    if (editing) await api.put(`/achievements/${editing}`, payload);
-    else await api.post("/achievements", payload);
-    setForm(empty); setEditing(null); setShowForm(false); await load();
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = { ...form, playerId: form.playerId ? Number(form.playerId) : null, year: form.year ? Number(form.year) : undefined, image: form.image || undefined };
+      if (editing) await api.put(`/achievements/${editing}`, payload);
+      else await api.post("/achievements", payload);
+      setForm(empty); setEditing(null); setShowForm(false); await load();
+    } catch (error: any) {
+      setMessage(error?.message || "Unable to save achievement.");
+    } finally {
+      setSaving(false);
+    }
   }
   async function remove(id: number) {
     if (!confirm("Remove this achievement?")) return;
@@ -70,9 +82,24 @@ export default function AdminAchievements() {
         <input type="number" min={1900} max={2200} placeholder="Year" className="input-admin" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} />
         <select className="input-admin" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>{TYPES.map((t) => <option key={t}>{t}</option>)}</select>
         <input placeholder="Medal (Gold/Silver/Bronze)" className="input-admin" value={form.medal} onChange={(e) => setForm({ ...form, medal: e.target.value })} />
-        <input placeholder="Photo URL (optional)" className="input-admin sm:col-span-2" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+        <div className="sm:col-span-2">
+          <label className="text-xs text-muted-foreground">Photo (JPG or PNG, max 2MB)</label>
+          <input type="file" accept="image/jpeg,image/png" className="input-admin w-full mt-1" onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            try {
+              setForm({ ...form, image: await readImageFile(file) });
+              setMessage("");
+            } catch (error: any) {
+              e.target.value = "";
+              setMessage(error?.message || "Unable to read the selected image.");
+            }
+          }} />
+          {form.image && <img src={form.image} alt="Selected achievement" className="mt-2 h-20 w-32 rounded-lg object-cover" />}
+        </div>
         <textarea placeholder="Description" className="input-admin sm:col-span-2" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        <button className="sm:col-span-2 bg-primary text-primary-foreground rounded-xl py-2 text-sm font-medium">{editing ? "Save Changes" : "Add Achievement"}</button>
+        {message && <p className="sm:col-span-2 text-sm text-danger">{message}</p>}
+        <button disabled={saving} className="sm:col-span-2 bg-primary text-primary-foreground rounded-xl py-2 text-sm font-medium disabled:opacity-60">{saving ? "Saving..." : editing ? "Save Changes" : "Add Achievement"}</button>
       </form>}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.length === 0 && <div className="glass-card p-8 text-center text-sm text-muted-foreground sm:col-span-3">No achievements available</div>}

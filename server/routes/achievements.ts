@@ -24,7 +24,15 @@ const achievementSchema = z.object({
   year: z.number().int().optional(),
   type: z.enum(["STATE", "NATIONAL", "INTERNATIONAL", "ASSOCIATION"]).optional(),
   medal: z.string().max(50).optional(),
-  image: z.string().optional(),
+  image: z
+    .string()
+    .trim()
+    .max(3_000_000)
+    .optional()
+    .refine(
+      (value) => value == null || /^https?:\/\//i.test(value) || /^data:image\/(?:jpeg|png);base64,[a-z0-9+/]+=*$/i.test(value),
+      "Please provide a valid JPG or PNG image."
+    ),
 });
 
 achievementsRouter.post("/", requireAdmin, async (req, res) => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { api } from "@/lib/api";
+import { readImageFile } from "@/lib/media";
 import { Edit3, Image, Plus, Trash2, Video, X } from "lucide-react";
 
 interface NewsItem {
@@ -123,7 +124,21 @@ export default function AdminNews() {
           <div className="grid sm:grid-cols-2 gap-3">
             <input required placeholder="Title" className="input-admin" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             <input required placeholder="Short summary" className="input-admin" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} />
-            <input placeholder="Photo URL (https://...)" className="input-admin" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+            <div>
+              <label className="text-xs text-muted-foreground">Photo (JPG or PNG, max 2MB)</label>
+              <input type="file" accept="image/jpeg,image/png" className="input-admin w-full mt-1" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  setForm({ ...form, image: await readImageFile(file) });
+                  setMessage("");
+                } catch (error: any) {
+                  e.target.value = "";
+                  setMessage(error?.message || "Unable to read the selected image.");
+                }
+              }} />
+              {form.image && <img src={form.image} alt="Selected article" className="mt-2 h-16 w-24 rounded-lg object-cover" />}
+            </div>
             <input placeholder="Video URL (YouTube, Vimeo, or MP4)" className="input-admin" value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} />
             <select className="input-admin" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
               {CATEGORIES.map((c) => <option key={c}>{c}</option>)}

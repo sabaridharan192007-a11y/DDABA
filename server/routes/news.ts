@@ -35,15 +35,15 @@ const mediaUrl = (kind: "image" | "video") =>
     z
       .string()
       .trim()
-      .max(2_000)
+      .max(3_000_000)
       .nullable()
       .optional()
       .refine(
         (value) =>
           value == null ||
-          (kind === "image" && value.startsWith("data:image/")) ||
+          (kind === "image" && /^data:image\/(?:jpeg|png);base64,[a-z0-9+/]+=*$/i.test(value)) ||
           /^https?:\/\//i.test(value),
-        `Please provide a valid ${kind} URL.`
+        kind === "image" ? "Please provide a valid JPG or PNG image." : `Please provide a valid ${kind} URL.`
       )
   );
 
